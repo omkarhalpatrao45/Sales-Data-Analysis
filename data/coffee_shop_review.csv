@@ -1,0 +1,101 @@
+transaction_id,transaction_date,transaction_time,transaction_qty,store_id,store_location,product_id,unit_price,product_category,product_type,product_detail,Revenue,review_reason,expected_revenue_if_quantity_valid,revenue_difference_if_quantity_valid
+845,2023-01-02,14:33:58,-2,5,Lower Manhattan,37,3.0,Coffee,Barista Espresso,Espresso shot,6.0,Quantity missing or nonpositive; quantity/revenue not inferred,-6.0,12.0
+1944,2023-01-04,14:21:46,0,3,Astoria,53,3.0,Tea,Brewed Chai tea,Traditional Blend Chai Lg,6.0,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,6.0
+2859,2023-01-06,11:05:28,-1,8,Hell'S Kitchen,36,3.75,Coffee,Premium brewed coffee,Jamaican Coffee River Lg,3.75,Quantity missing or nonpositive; quantity/revenue not inferred,-3.75,7.5
+3693,2023-01-07,13:38:18,-1,3,Astoria,35,3.1,Coffee,Premium brewed coffee,Jamaican Coffee River Rg,3.1,Quantity missing or nonpositive; quantity/revenue not inferred,-3.1,6.2
+4408,2023-01-09,06:39:11,0,8,Hell'S Kitchen,76,3.5,Bakery,Biscotti,Chocolate Chip Biscotti,3.5,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,3.5
+10041,2023-01-18,10:55:31,-2,3,Astoria,50,2.5,Tea,Brewed Black tea,Earl Grey Rg,5.0,Quantity missing or nonpositive; quantity/revenue not inferred,-5.0,10.0
+11177,2023-01-20,10:28:53,-2,5,Lower Manhattan,87,3.0,Coffee,Barista Espresso,Ouro Brasileiro shot,6.0,Quantity missing or nonpositive; quantity/revenue not inferred,-6.0,12.0
+13008,2023-01-23,16:20:30,-1,5,Lower Manhattan,57,3.1,Tea,Brewed Chai tea,Spicy Eye Opener Chai Lg,3.1,Quantity missing or nonpositive; quantity/revenue not inferred,-3.1,6.2
+16832,2023-01-30,17:29:02,-1,3,Astoria,9,22.5,Coffee Beans,Organic Beans,Organic Decaf Blend,22.5,Quantity missing or nonpositive; quantity/revenue not inferred,-22.5,45.0
+18040,2023-02-02,12:01:04,-2,5,Lower Manhattan,55,4.0,Tea,Brewed Chai tea,Morning Sunrise Chai Lg,8.0,Quantity missing or nonpositive; quantity/revenue not inferred,-8.0,16.0
+19267,2023-02-04,12:50:19,0,5,Lower Manhattan,34,2.45,Coffee,Premium brewed coffee,Jamaican Coffee River Sm,4.9,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,4.9
+19713,2023-02-05,09:57:32,-1,5,Lower Manhattan,70,3.25,Bakery,Scone,Cranberry Scone,3.25,Quantity missing or nonpositive; quantity/revenue not inferred,-3.25,6.5
+19991,2023-02-05,15:52:10,0,8,Hell'S Kitchen,54,2.5,Tea,Brewed Chai tea,Morning Sunrise Chai Rg,2.5,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,2.5
+22687,2023-02-10,10:00:26,-1,3,Astoria,29,2.5,Coffee,Gourmet brewed coffee,Columbian Medium Roast Rg,2.5,Quantity missing or nonpositive; quantity/revenue not inferred,-2.5,5.0
+27030,2023-02-17,13:26:01,-1,3,Astoria,48,2.5,Tea,Brewed Black tea,English Breakfast Rg,2.5,Quantity missing or nonpositive; quantity/revenue not inferred,-2.5,5.0
+27767,2023-02-19,06:08:41,0,5,Lower Manhattan,25,2.2,Coffee,Organic brewed coffee,Brazilian Sm,2.2,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,2.2
+29342,2023-02-21,10:14:51,0,8,Hell'S Kitchen,41,4.25,Coffee,Barista Espresso,Cappuccino Lg,8.5,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,8.5
+30119,2023-02-22,16:40:39,0,5,Lower Manhattan,51,3.0,Tea,Brewed Black tea,Earl Grey Lg,3.0,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,3.0
+33282,2023-02-28,08:46:26,0,3,Astoria,31,2.2,Coffee,Gourmet brewed coffee,Ethiopia Sm,4.4,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,4.4
+34082,2023-03-01,14:34:35,-2,3,Astoria,52,2.5,Tea,Brewed Chai tea,Traditional Blend Chai Rg,5.0,Quantity missing or nonpositive; quantity/revenue not inferred,-5.0,10.0
+34876,2023-03-02,16:47:49,-2,8,Hell'S Kitchen,50,2.5,Tea,Brewed Black tea,Earl Grey Rg,5.0,Quantity missing or nonpositive; quantity/revenue not inferred,-5.0,10.0
+36201,2023-03-04,16:01:34,0,3,Astoria,25,2.2,Coffee,Organic brewed coffee,Brazilian Sm,2.2,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,2.2
+37232,2023-03-06,11:43:08,0,8,Hell'S Kitchen,87,3.0,Coffee,Barista Espresso,Ouro Brasileiro shot,6.0,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,6.0
+40395,2023-03-10,15:07:17,-1,8,Hell'S Kitchen,37,3.0,Coffee,Barista Espresso,Espresso shot,3.0,Quantity missing or nonpositive; quantity/revenue not inferred,-3.0,6.0
+42437,2023-03-13,13:52:33,0,3,Astoria,84,0.8,Flavours,Regular syrup,Chocolate syrup,1.6,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,1.6
+42799,2023-03-14,08:48:42,-1,8,Hell'S Kitchen,71,3.75,Bakery,Pastry,Chocolate Croissant,3.75,Quantity missing or nonpositive; quantity/revenue not inferred,-3.75,7.5
+43543,2023-03-15,08:51:44,0,8,Hell'S Kitchen,30,3.0,Coffee,Gourmet brewed coffee,Columbian Medium Roast Lg,6.0,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,6.0
+45057,2023-03-17,09:10:34,-2,3,Astoria,49,3.0,Tea,Brewed Black tea,English Breakfast Lg,6.0,Quantity missing or nonpositive; quantity/revenue not inferred,-6.0,12.0
+48535,2023-03-22,09:03:56,0,5,Lower Manhattan,72,3.25,Bakery,Scone,Ginger Scone,3.25,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,3.25
+48986,2023-03-22,18:54:19,-2,3,Astoria,26,3.0,Coffee,Organic brewed coffee,Brazilian Rg,6.0,Quantity missing or nonpositive; quantity/revenue not inferred,-6.0,12.0
+49595,2023-03-23,17:03:58,0,8,Hell'S Kitchen,48,2.5,Tea,Brewed Black tea,English Breakfast Rg,2.5,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,2.5
+51246,2023-03-26,08:10:33,0,5,Lower Manhattan,57,3.1,Tea,Brewed Chai tea,Spicy Eye Opener Chai Lg,3.1,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,3.1
+51619,2023-03-26,15:07:26,-2,8,Hell'S Kitchen,87,2.1,Coffee,Barista Espresso,Ouro Brasileiro shot,4.2,Quantity missing or nonpositive; quantity/revenue not inferred,-4.2,8.4
+51786,2023-03-27,07:01:52,0,5,Lower Manhattan,31,2.2,Coffee,Gourmet brewed coffee,Ethiopia Sm,4.4,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,4.4
+54691,2023-03-31,10:18:50,0,8,Hell'S Kitchen,63,0.8,Flavours,Regular syrup,Carmel syrup,0.8,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,0.8
+55051,2023-04-01,08:24:50,-1,5,Lower Manhattan,44,2.5,Tea,Brewed herbal tea,Peppermint Rg,2.5,Quantity missing or nonpositive; quantity/revenue not inferred,-2.5,5.0
+55167,2023-04-01,11:01:58,0,3,Astoria,38,3.75,Coffee,Barista Espresso,Latte,3.75,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,3.75
+56347,2023-04-02,15:57:22,-1,8,Hell'S Kitchen,46,2.5,Tea,Brewed Green tea,Serenity Green Tea Rg,2.5,Quantity missing or nonpositive; quantity/revenue not inferred,-2.5,5.0
+59752,2023-04-06,19:45:19,0,8,Hell'S Kitchen,25,2.2,Coffee,Organic brewed coffee,Brazilian Sm,4.4,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,4.4
+59866,2023-04-07,07:34:33,0,5,Lower Manhattan,54,2.5,Tea,Brewed Chai tea,Morning Sunrise Chai Rg,2.5,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,2.5
+61248,2023-04-08,14:02:30,-1,8,Hell'S Kitchen,37,3.0,Coffee,Barista Espresso,Espresso shot,3.0,Quantity missing or nonpositive; quantity/revenue not inferred,-3.0,6.0
+62327,2023-04-09,17:51:41,0,5,Lower Manhattan,40,3.75,Coffee,Barista Espresso,Cappuccino,7.5,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,7.5
+65465,2023-04-13,10:16:56,-2,8,Hell'S Kitchen,31,2.2,Coffee,Gourmet brewed coffee,Ethiopia Sm,4.4,Quantity missing or nonpositive; quantity/revenue not inferred,-4.4,8.8
+65791,2023-04-13,16:34:04,-2,3,Astoria,22,2.0,Coffee,Drip coffee,Our Old Time Diner Blend Sm,4.0,Quantity missing or nonpositive; quantity/revenue not inferred,-4.0,8.0
+66049,2023-04-14,08:45:29,-1,8,Hell'S Kitchen,35,3.1,Coffee,Premium brewed coffee,Jamaican Coffee River Rg,3.1,Quantity missing or nonpositive; quantity/revenue not inferred,-3.1,6.2
+67768,2023-04-16,07:35:33,0,8,Hell'S Kitchen,61,4.75,Drinking Chocolate,Hot chocolate,Sustainably Grown Organic Lg,4.75,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,4.75
+69791,2023-04-18,09:46:31,0,8,Hell'S Kitchen,71,3.75,Bakery,Pastry,Chocolate Croissant,3.75,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,3.75
+73207,2023-04-22,10:08:06,0,3,Astoria,46,2.5,Tea,Brewed Green tea,Serenity Green Tea Rg,2.5,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,2.5
+74252,2023-04-23,13:08:37,-2,8,Hell'S Kitchen,54,2.5,Tea,Brewed Chai tea,Morning Sunrise Chai Rg,5.0,Quantity missing or nonpositive; quantity/revenue not inferred,-5.0,10.0
+77790,2023-04-27,12:50:23,0,8,Hell'S Kitchen,59,4.5,Drinking Chocolate,Hot chocolate,Dark chocolate Lg,4.5,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,4.5
+80239,2023-04-30,15:21:26,0,5,Lower Manhattan,70,3.25,Bakery,Scone,Cranberry Scone,3.25,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,3.25
+80553,2023-05-01,09:55:16,0,5,Lower Manhattan,43,3.0,Tea,Brewed herbal tea,Lemon Grass Lg,6.0,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,6.0
+81763,2023-05-02,12:21:49,-1,5,Lower Manhattan,45,3.0,Tea,Brewed herbal tea,Peppermint Lg,3.0,Quantity missing or nonpositive; quantity/revenue not inferred,-3.0,6.0
+82380,2023-05-02,18:30:06,-2,3,Astoria,36,3.75,Coffee,Premium brewed coffee,Jamaican Coffee River Lg,7.5,Quantity missing or nonpositive; quantity/revenue not inferred,-7.5,15.0
+83673,2023-05-04,09:30:16,-2,8,Hell'S Kitchen,51,3.0,Tea,Brewed Black tea,Earl Grey Lg,6.0,Quantity missing or nonpositive; quantity/revenue not inferred,-6.0,12.0
+84448,2023-05-04,17:56:04,0,3,Astoria,50,2.5,Tea,Brewed Black tea,Earl Grey Rg,2.5,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,2.5
+88227,2023-05-08,10:31:08,0,5,Lower Manhattan,25,2.2,Coffee,Organic brewed coffee,Brazilian Sm,2.2,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,2.2
+89856,2023-05-09,17:00:34,-2,5,Lower Manhattan,60,3.75,Drinking Chocolate,Hot chocolate,Sustainably Grown Organic Rg,7.5,Quantity missing or nonpositive; quantity/revenue not inferred,-7.5,15.0
+90902,2023-05-10,14:20:27,-1,3,Astoria,28,2.0,Coffee,Gourmet brewed coffee,Columbian Medium Roast Sm,2.0,Quantity missing or nonpositive; quantity/revenue not inferred,-2.0,4.0
+93743,2023-05-13,09:55:40,-2,8,Hell'S Kitchen,49,3.0,Tea,Brewed Black tea,English Breakfast Lg,6.0,Quantity missing or nonpositive; quantity/revenue not inferred,-6.0,12.0
+96699,2023-05-16,07:03:19,0,3,Astoria,10,10.0,Coffee Beans,Green beans,Guatemalan Sustainably Grown,10.0,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,10.0
+97033,2023-05-16,09:07:47,-1,3,Astoria,22,2.0,Coffee,Drip coffee,Our Old Time Diner Blend Sm,2.0,Quantity missing or nonpositive; quantity/revenue not inferred,-2.0,4.0
+97558,2023-05-16,14:10:25,0,3,Astoria,32,3.0,Coffee,Gourmet brewed coffee,Ethiopia Rg,3.0,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,3.0
+97643,2023-05-16,15:34:13,0,5,Lower Manhattan,31,2.2,Coffee,Gourmet brewed coffee,Ethiopia Sm,2.2,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,2.2
+98286,2023-05-17,09:36:03,-1,5,Lower Manhattan,9,22.5,Coffee Beans,Organic Beans,Organic Decaf Blend,22.5,Quantity missing or nonpositive; quantity/revenue not inferred,-22.5,45.0
+99581,2023-05-18,10:58:42,0,5,Lower Manhattan,77,3.0,Bakery,Scone,Oatmeal Scone,3.0,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,3.0
+102013,2023-05-20,11:31:25,-1,3,Astoria,37,3.0,Coffee,Barista Espresso,Espresso shot,3.0,Quantity missing or nonpositive; quantity/revenue not inferred,-3.0,6.0
+102642,2023-05-21,08:43:09,-2,8,Hell'S Kitchen,57,3.1,Tea,Brewed Chai tea,Spicy Eye Opener Chai Lg,6.2,Quantity missing or nonpositive; quantity/revenue not inferred,-6.2,12.4
+103107,2023-05-21,11:57:41,0,8,Hell'S Kitchen,57,3.1,Tea,Brewed Chai tea,Spicy Eye Opener Chai Lg,6.2,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,6.2
+105016,2023-05-23,09:45:01,0,3,Astoria,55,4.0,Tea,Brewed Chai tea,Morning Sunrise Chai Lg,8.0,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,8.0
+107935,2023-05-26,07:13:05,0,8,Hell'S Kitchen,71,3.75,Bakery,Pastry,Chocolate Croissant,3.75,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,3.75
+107982,2023-05-26,07:41:32,-2,5,Lower Manhattan,63,0.8,Flavours,Regular syrup,Carmel syrup,1.6,Quantity missing or nonpositive; quantity/revenue not inferred,-1.6,3.2
+111585,2023-05-29,13:53:03,0,5,Lower Manhattan,55,4.0,Tea,Brewed Chai tea,Morning Sunrise Chai Lg,4.0,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,4.0
+114016,2023-05-31,19:50:11,0,8,Hell'S Kitchen,50,2.5,Tea,Brewed Black tea,Earl Grey Rg,2.5,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,2.5
+115691,2023-06-02,13:57:25,-2,8,Hell'S Kitchen,46,2.5,Tea,Brewed Green tea,Serenity Green Tea Rg,5.0,Quantity missing or nonpositive; quantity/revenue not inferred,-5.0,10.0
+115716,2023-06-02,14:09:31,0,3,Astoria,40,3.75,Coffee,Barista Espresso,Cappuccino,7.5,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,7.5
+116478,2023-06-03,10:15:16,-2,5,Lower Manhattan,57,3.1,Tea,Brewed Chai tea,Spicy Eye Opener Chai Lg,6.2,Quantity missing or nonpositive; quantity/revenue not inferred,-6.2,12.4
+116524,2023-06-03,10:56:53,-1,5,Lower Manhattan,73,3.75,Bakery,Pastry,Almond Croissant,3.75,Quantity missing or nonpositive; quantity/revenue not inferred,-3.75,7.5
+118267,2023-06-04,16:24:30,0,8,Hell'S Kitchen,47,3.0,Tea,Brewed Green tea,Serenity Green Tea Lg,6.0,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,6.0
+119365,2023-06-05,16:00:54,-2,3,Astoria,55,4.0,Tea,Brewed Chai tea,Morning Sunrise Chai Lg,8.0,Quantity missing or nonpositive; quantity/revenue not inferred,-8.0,16.0
+122123,2023-06-08,08:31:00,0,5,Lower Manhattan,71,3.75,Bakery,Pastry,Chocolate Croissant,3.75,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,3.75
+127950,2023-06-12,19:12:23,0,8,Hell'S Kitchen,79,3.75,Bakery,Scone,Jumbo Savory Scone,3.75,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,3.75
+127991,2023-06-13,07:10:37,0,5,Lower Manhattan,35,3.1,Coffee,Premium brewed coffee,Jamaican Coffee River Rg,6.2,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,6.2
+128823,2023-06-13,12:10:33,-1,3,Astoria,53,3.0,Tea,Brewed Chai tea,Traditional Blend Chai Lg,3.0,Quantity missing or nonpositive; quantity/revenue not inferred,-3.0,6.0
+129562,2023-06-14,08:57:51,-1,5,Lower Manhattan,76,3.5,Bakery,Biscotti,Chocolate Chip Biscotti,3.5,Quantity missing or nonpositive; quantity/revenue not inferred,-3.5,7.0
+130698,2023-06-15,08:08:36,-2,8,Hell'S Kitchen,52,2.5,Tea,Brewed Chai tea,Traditional Blend Chai Rg,5.0,Quantity missing or nonpositive; quantity/revenue not inferred,-5.0,10.0
+134128,2023-06-18,06:11:22,0,5,Lower Manhattan,32,3.0,Coffee,Gourmet brewed coffee,Ethiopia Rg,3.0,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,3.0
+134186,2023-06-18,06:59:11,0,5,Lower Manhattan,14,8.95,Loose Tea,Black tea,Earl Grey,8.95,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,8.95
+138996,2023-06-21,18:00:07,-2,5,Lower Manhattan,84,0.8,Flavours,Regular syrup,Chocolate syrup,1.6,Quantity missing or nonpositive; quantity/revenue not inferred,-1.6,3.2
+140085,2023-06-22,16:53:31,0,8,Hell'S Kitchen,69,3.25,Bakery,Biscotti,Hazelnut Biscotti,3.25,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,3.25
+140830,2023-06-23,11:04:38,-1,8,Hell'S Kitchen,8,45.0,Coffee Beans,Premium Beans,Civet Cat,45.0,Quantity missing or nonpositive; quantity/revenue not inferred,-45.0,90.0
+140998,2023-06-23,13:32:38,0,8,Hell'S Kitchen,46,2.5,Tea,Brewed Green tea,Serenity Green Tea Rg,2.5,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,2.5
+142274,2023-06-24,14:38:45,0,5,Lower Manhattan,72,2.65,Bakery,Scone,Ginger Scone,5.3,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,5.3
+142608,2023-06-24,19:24:25,-1,3,Astoria,54,2.5,Tea,Brewed Chai tea,Morning Sunrise Chai Rg,2.5,Quantity missing or nonpositive; quantity/revenue not inferred,-2.5,5.0
+143132,2023-06-25,10:20:44,-1,3,Astoria,40,3.75,Coffee,Barista Espresso,Cappuccino,3.75,Quantity missing or nonpositive; quantity/revenue not inferred,-3.75,7.5
+144309,2023-06-26,10:10:30,-1,8,Hell'S Kitchen,84,0.8,Flavours,Regular syrup,Chocolate syrup,0.8,Quantity missing or nonpositive; quantity/revenue not inferred,-0.8,1.6
+145649,2023-06-27,10:57:04,-1,5,Lower Manhattan,84,0.8,Flavours,Regular syrup,Chocolate syrup,0.8,Quantity missing or nonpositive; quantity/revenue not inferred,-0.8,1.6
+146342,2023-06-28,08:00:24,0,3,Astoria,34,2.45,Coffee,Premium brewed coffee,Jamaican Coffee River Sm,4.9,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,4.9
+147062,2023-06-28,16:02:17,-2,8,Hell'S Kitchen,45,3.0,Tea,Brewed herbal tea,Peppermint Lg,6.0,Quantity missing or nonpositive; quantity/revenue not inferred,-6.0,12.0
+147955,2023-06-29,14:56:16,0,3,Astoria,69,3.25,Bakery,Biscotti,Hazelnut Biscotti,3.25,Quantity missing or nonpositive; quantity/revenue not inferred,0.0,3.25
