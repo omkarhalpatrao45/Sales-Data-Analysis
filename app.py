@@ -1,25 +1,30 @@
 from datetime import date
 from pathlib import Path
-from typing import Literal, Sequence, cast
+from typing import cast
 
-import matplotlib.dates as mdates
-import matplotlib.pyplot as plt
 import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import streamlit as st
-from matplotlib.axes import Axes
-from matplotlib.container import BarContainer
-from matplotlib.figure import Figure
-from matplotlib.patches import Rectangle
-from matplotlib.ticker import FuncFormatter
 
+
+# ============================================================
+# PAGE CONFIGURATION
+# ============================================================
 
 st.set_page_config(
-    page_title="Coffee Shop Sales Dashboard",
+    page_title="Coffee Shop Sales",
     page_icon="☕",
     layout="wide",
 )
 
-DATA_PATH = Path(__file__).parent / "data" / "coffee_shop_cleaned.csv"
+DATA_PATH = (
+    Path(__file__).parent
+    / "data"
+    / "coffee_shop_cleaned.csv"
+)
+
 REQUIRED_COLUMNS = {
     "transaction_id",
     "transaction_date",
@@ -31,139 +36,280 @@ REQUIRED_COLUMNS = {
     "Revenue",
 }
 
+COFFEE = "#684832"
+COFFEE_LIGHT = "#A57952"
+INK = "#38291F"
+CREAM = "#F6F1E9"
+CARD = "#FFFDFA"
+SPARSE_MONTH_RECORD_THRESHOLD = 100
 
-@st.cache_data
+
+# ============================================================
+# LOAD AND VALIDATE DATA
+# ============================================================
+
+@st.cache_data(show_spinner=False)
 def load_data(path: str, modified_time: float) -> pd.DataFrame:
-    """Load the cleaned CSV, coercing expected numeric and date fields."""
-    del modified_time  # Part of the cache key so a regenerated CSV is reloaded.
+    """Load and validate the cleaned sales dataset."""
+    del modified_time
+
     data = pd.read_csv(path)
+
     missing = sorted(REQUIRED_COLUMNS - set(data.columns))
     if missing:
-        raise ValueError("Missing required columns: " + ", ".join(missing))
+        raise ValueError(
+            "Missing required columns: " + ", ".join(missing)
+        )
 
     data["transaction_date"] = pd.to_datetime(
-        data["transaction_date"], errors="coerce"
+        data["transaction_date"],
+        errors="coerce",
     )
-    for column in ["transaction_id", "transaction_qty", "unit_price", "Revenue"]:
-        data[column] = pd.to_numeric(data[column], errors="coerce")
+
+    for column in [
+        "transaction_id",
+        "transaction_qty",
+        "unit_price",
+        "Revenue",
+    ]:
+        data[column] = pd.to_numeric(
+            data[column],
+            errors="coerce",
+        )
+
     return data
 
 
-def resolve_date_range(
-    selection: object, minimum: date, maximum: date
-) -> tuple[date, date]:
-    """Handle a single day, an incomplete picker range, or a full date range."""
-    if isinstance(selection, date):
-        return selection, selection
-    if isinstance(selection, (tuple, list)):
-        values = cast(Sequence[object], selection)
-        if len(values) == 2 and isinstance(values[0], date) and isinstance(values[1], date):
-            start, end = values[0], values[1]
-            return (start, end) if start <= end else (end, start)
-        if len(values) == 1 and isinstance(values[0], date):
-            return values[0], values[0]
-    return minimum, maximum
+def select_all(
+    label: str,
+    values: list[str],
+    key: str,
+) -> list[str]:
+    """Create a multi-select filter with an All option."""
+    choices = ["All", *values]
+
+    selected = st.sidebar.multiselect(
+        label,
+        choices,
+        default=["All"],
+        key=key,
+    )
+
+    return values if "All" in selected else selected
 
 
-def create_figure(figsize: tuple[float, float]) -> tuple[Figure, Axes]:
-    figure, axes = plt.subplots(figsize=figsize, dpi=140)  # pyright: ignore[reportUnknownMemberType]
-    return figure, axes
+def format_money(value: float) -> str:
+    return f"${value:,.2f}"
 
 
-def render_figure(figure: Figure) -> None:
-    """Render responsively across the legacy and current Streamlit APIs."""
-    streamlit_version = tuple(int(part) for part in st.__version__.split(".")[:2])
-    if streamlit_version >= (1, 50):
-        st.pyplot(figure, width="stretch")
-    else:
-        st.pyplot(figure, use_container_width=True)
-    plt.close(figure)
+def format_chart_money(value: float) -> str:
+    """Use compact dollar labels that remain readable beside chart points."""
+    if abs(value) >= 1_000:
+        return f"${value / 1_000:.1f}K"
+    return f"${value:,.0f}"
 
 
-def style_axes(
-    figure: Figure,
-    axes: Axes,
-    title: str,
-    x_label: str,
-    y_label: str,
-    grid_axis: Literal["x", "y"],
+# ============================================================
+# CHART HELPERS
+# ============================================================
+
+def chart_layout(
+    fig: go.Figure,
+    height: int = 340,
+) -> go.Figure:
+    """Apply consistent dashboard styling."""
+    fig.update_layout(
+        height=height,
+        margin=dict(l=18, r=35, t=26, b=30),
+        paper_bgcolor=CARD,
+        plot_bgcolor=CARD,
+        font=dict(
+            family="Inter, Arial, sans-serif",
+            color=INK,
+            size=12,
+        ),
+        hoverlabel=dict(
+            bgcolor="#fffaf3",
+            font_color=INK,
+        ),
+        showlegend=False,
+    )
+
+    fig.update_xaxes(
+        showgrid=False,
+        linecolor="#E7DCCE",
+        zeroline=False,
+        tickfont=dict(color="#55483D", size=11),
+        title_font=dict(color=INK, size=12),
+    )
+
+    fig.update_yaxes(
+        gridcolor="#EFE8DF",
+        linecolor="#E7DCCE",
+        zeroline=False,
+        tickfont=dict(color="#55483D", size=11),
+        title_font=dict(color=INK, size=12),
+    )
+
+    return fig
+
+
+def render_chart(
+    fig: go.Figure,
+    config: dict[str, object],
 ) -> None:
-    """Apply the dashboard's coffee palette and legible chart defaults."""
-    figure.patch.set_facecolor("#FFFDFA")
-    axes.set_facecolor("#FFFDFA")
-    axes.set_title(title, loc="left", fontsize=13, fontweight="semibold", color="#4D4036", pad=14)  # pyright: ignore[reportUnknownMemberType]
-    axes.set_xlabel(x_label, color="#64564A", labelpad=8)  # pyright: ignore[reportUnknownMemberType]
-    axes.set_ylabel(y_label, color="#64564A", labelpad=8)  # pyright: ignore[reportUnknownMemberType]
-    axes.tick_params(colors="#64564A", labelsize=9)  # pyright: ignore[reportUnknownMemberType]
-    axes.grid(axis=grid_axis, color="#EDE5DB", linewidth=0.8)  # pyright: ignore[reportUnknownMemberType]
-    axes.set_axisbelow(True)
-    axes.spines["top"].set_visible(False)
-    axes.spines["right"].set_visible(False)
-    axes.spines["left"].set_color("#D7C8B7")
-    axes.spines["bottom"].set_color("#D7C8B7")
+    """Render a chart with Streamlit-compatible width settings."""
+    version = tuple(
+        int(part) for part in st.__version__.split(".")[:2]
+    )
 
-
-def add_bar_labels(axes: Axes, bars: BarContainer, maximum: float) -> None:
-    """Place compact numeric labels just beyond horizontal bars."""
-    for bar in cast(Sequence[Rectangle], bars.patches):
-        value = float(bar.get_width())
-        axes.annotate(  # pyright: ignore[reportUnknownMemberType]
-            f"{value:,.0f}",
-            xy=(value, bar.get_y() + bar.get_height() / 2),
-            xytext=(5, 0),
-            textcoords="offset points",
-            va="center",
-            ha="left",
-            fontsize=8,
-            color="#64564A",
+    if version >= (1, 50):
+        st.plotly_chart(
+            fig,
+            width="stretch",
+            config=config,
         )
-    axes.set_xlim(0, maximum * 1.16 if maximum > 0 else 1)
+    else:
+        st.plotly_chart(
+            fig,
+            use_container_width=True,
+            config=config,
+        )
 
 
-def format_number(value: float, _position: int) -> str:
-    return f"{value:,.0f}"
+def render_table(data: pd.DataFrame) -> None:
+    """Render a table across the available width."""
+    version = tuple(
+        int(part) for part in st.__version__.split(".")[:2]
+    )
 
+    if version >= (1, 50):
+        st.dataframe(
+            data,
+            width="stretch",
+            hide_index=True,
+        )
+    else:
+        st.dataframe(
+            data,
+            use_container_width=True,
+            hide_index=True,
+        )
+
+
+# ============================================================
+# DASHBOARD CSS
+# ============================================================
 
 st.markdown(
     """
     <style>
-      :root { color-scheme: light; }
-      .stApp { background: #F7F3EC; color: #34291F; }
-      [data-testid="stAppViewContainer"] > .main { background: transparent; }
-      .block-container { max-width: 1500px; padding: 2rem 2.4rem 3rem; }
-      [data-testid="stSidebar"] { background: #EFE6D9; border-right: 1px solid #E1D4C5; }
-      [data-testid="stSidebar"] h2, [data-testid="stSidebar"] label { color: #4D4036; }
-      h1 { color: #3B2B20; letter-spacing: -0.035em; padding-bottom: .15rem; }
-      h2, h3 { color: #4D4036; letter-spacing: -0.015em; }
-      [data-testid="stCaptionContainer"] { color: #75675A; }
-      [data-testid="stMetric"] {
-        background: #FFFDFA; border: 1px solid #E6D9C9; border-radius: 14px;
-        padding: 1rem 1.15rem; box-shadow: 0 3px 12px rgba(76, 52, 31, .055);
-        min-height: 112px;
+      .stApp {
+          background: #F6F1E9;
+          color: #38291F;
       }
-      [data-testid="stMetricLabel"] { color: #75675A; font-weight: 600; }
-      [data-testid="stMetricValue"] { color: #513A2B; font-size: clamp(1.35rem, 2vw, 2rem); }
-      [data-testid="stHorizontalBlock"] { gap: 1rem; }
-      hr { border-color: #E3D7C9; }
+
+      [data-testid="stAppViewContainer"] > .main {
+          background: transparent;
+      }
+
+      .block-container {
+          max-width: 1560px;
+          padding: 1.5rem 2rem 2.2rem;
+      }
+
+      [data-testid="stSidebar"] {
+          background: #493326;
+      }
+
+      [data-testid="stSidebar"] * {
+          color: #FFF9F1;
+      }
+
+      [data-testid="stSidebar"] [data-baseweb="select"] * {
+          color: #38291F;
+      }
+
+      [data-testid="stSidebar"] input {
+          color: #38291F;
+      }
+
+      h1 {
+          color: #38291F;
+          letter-spacing: -.035em;
+          margin-bottom: 0;
+      }
+
+      h2, h3 {
+          color: #493326;
+      }
+
+      [data-testid="stCaptionContainer"] {
+          color: #75675A;
+      }
+
+      [data-testid="stMetric"] {
+          background: #FFFDFA;
+          border: 1px solid #E7DCCE;
+          border-radius: 13px;
+          padding: .85rem 1rem;
+          min-height: 104px;
+          box-shadow: 0 3px 12px rgba(76,52,31,.05);
+      }
+
+      [data-testid="stMetricLabel"] {
+          color: #75675A;
+          font-weight: 600;
+      }
+
+      [data-testid="stMetricValue"] {
+          color: #513A2B;
+          font-size: clamp(1.25rem, 2vw, 1.9rem);
+      }
+
+      [data-testid="stHorizontalBlock"] {
+          gap: 1rem;
+      }
+
+      hr {
+          border-color: #E7DCCE;
+      }
+
       @media (max-width: 760px) {
-        .block-container { padding: 1.2rem 1rem 2rem; }
-        [data-testid="stMetric"] { padding: .8rem; min-height: 96px; }
+          .block-container {
+              padding: 1rem .8rem 1.5rem;
+          }
+
+          [data-testid="stMetric"] {
+              padding: .7rem;
+              min-height: 90px;
+          }
       }
     </style>
     """,
     unsafe_allow_html=True,
 )
 
-st.title("☕ Coffee Shop Sales")
-st.caption("A clear view of revenue, customer activity, and product performance.")
+
+# ============================================================
+# LOAD DATA
+# ============================================================
 
 if not DATA_PATH.is_file():
     st.error(f"Cleaned CSV not found: {DATA_PATH}")
     st.stop()
 
 try:
-    df = load_data(str(DATA_PATH), DATA_PATH.stat().st_mtime)
-except (OSError, ValueError, pd.errors.ParserError) as exc:
+    df = load_data(
+        str(DATA_PATH),
+        DATA_PATH.stat().st_mtime,
+    )
+except (
+    OSError,
+    ValueError,
+    pd.errors.ParserError,
+    UnicodeDecodeError,
+) as exc:
     st.error(f"Could not load a valid sales dataset: {exc}")
     st.stop()
 
@@ -171,239 +317,553 @@ if df.empty:
     st.error("The cleaned CSV contains no records.")
     st.stop()
 
-required_values = ["transaction_date", "transaction_id", "transaction_qty", "Revenue"]
-unusable = df[required_values].isna().any(axis=1)
-if unusable.any():
+
+# ============================================================
+# DATA QUALITY CHECKS
+# ============================================================
+
+required = [
+    "transaction_date",
+    "transaction_id",
+    "transaction_qty",
+    "Revenue",
+]
+
+invalid = df[required].isna().any(axis=1)
+
+if invalid.any():
     st.warning(
-        f"{int(unusable.sum()):,} rows have missing or invalid required values "
-        "and are excluded from analysis. Review the cleaning output."
+        f"{int(invalid.sum()):,} records with invalid required "
+        "values were excluded."
     )
-df = df.loc[~unusable].copy()
+
+df = df.loc[~invalid].copy()
+
 if df.empty:
-    st.error("No records have valid dates, transaction IDs, quantities, and revenue.")
+    st.error(
+        "No records have valid dates, transaction IDs, "
+        "quantities, and revenue."
+    )
     st.stop()
 
 missing_label = "(Missing)"
-for column in ["store_location", "product_category", "product_detail"]:
-    df[column] = (
-        df[column]
+
+for col in [
+    "store_location",
+    "product_category",
+    "product_detail",
+]:
+    df[col] = (
+        df[col]
         .astype("string")
         .str.strip()
         .replace("", pd.NA)
         .fillna(missing_label)
     )
 
-locations = sorted(df["store_location"].unique().tolist())
-categories = sorted(df["product_category"].unique().tolist())
-all_locations = "All locations"
-all_categories = "All categories"
+
+# ============================================================
+# SIDEBAR FILTERS
+# ============================================================
 
 st.sidebar.header("Filters")
-selected_locations = st.sidebar.multiselect(
-    "Store locations",
-    [all_locations, *locations],
-    default=locations,
-    help="Select All locations to reset, or clear this field to choose a smaller set.",
-)
-selected_categories = st.sidebar.multiselect(
-    "Product categories",
-    [all_categories, *categories],
-    default=categories,
-    help="Select All categories to reset, or clear this field to choose a smaller set.",
-)
 
 min_date = df["transaction_date"].min().date()
 max_date = df["transaction_date"].max().date()
-selected_dates = st.sidebar.date_input(
+
+date_selection = st.sidebar.date_input(
     "Date range",
     value=(min_date, max_date),
     min_value=min_date,
     max_value=max_date,
-    help="Both the start date and end date are included.",
+    help="Start and end dates are inclusive.",
 )
 
-location_values = (
-    locations if all_locations in selected_locations else selected_locations
+if isinstance(date_selection, date):
+    start_date = end_date = date_selection
+
+elif (
+    isinstance(date_selection, (tuple, list))
+    and len(date_selection) == 2
+):
+    start_date, end_date = cast(
+        tuple[date, date],
+        tuple(date_selection),
+    )
+
+else:
+    start_date, end_date = min_date, max_date
+
+if start_date > end_date:
+    start_date, end_date = end_date, start_date
+
+locations = sorted(
+    df["store_location"].unique().tolist()
 )
-category_values = (
-    categories if all_categories in selected_categories else selected_categories
+
+categories = sorted(
+    df["product_category"].unique().tolist()
 )
-location_filtered = df.loc[df["store_location"].isin(location_values)].copy()
-category_filtered = location_filtered.loc[
-    location_filtered["product_category"].isin(category_values)
+
+selected_locations = select_all(
+    "Store location",
+    locations,
+    "location",
+)
+
+selected_categories = select_all(
+    "Product category",
+    categories,
+    "category",
+)
+
+candidate = df.loc[
+    df["store_location"].isin(selected_locations)
+    & df["product_category"].isin(selected_categories)
+]
+
+products = sorted(
+    candidate["product_detail"].unique().tolist()
+)
+
+selected_products = select_all(
+    "Product",
+    products,
+    "product",
+)
+
+
+# ============================================================
+# APPLY FILTERS
+# ============================================================
+
+date_mask = (
+    df["transaction_date"].ge(pd.Timestamp(start_date))
+    & df["transaction_date"].lt(
+        pd.Timestamp(end_date) + pd.Timedelta(days=1)
+    )
+)
+
+filtered = df.loc[
+    date_mask
+    & df["store_location"].isin(selected_locations)
+    & df["product_category"].isin(selected_categories)
+    & df["product_detail"].isin(selected_products)
 ].copy()
 
-start_date, end_date = resolve_date_range(selected_dates, min_date, max_date)
-date_values = category_filtered["transaction_date"]
-date_mask = date_values.ge(pd.Timestamp(start_date)) & date_values.lt(
-    pd.Timestamp(end_date) + pd.Timedelta(days=1)
-)
-filtered = category_filtered.loc[date_mask].copy()
 
-st.sidebar.caption(f"After locations: {len(location_filtered):,} rows")
-st.sidebar.caption(f"After categories: {len(category_filtered):,} rows")
-st.sidebar.caption(f"After dates: {len(filtered):,} rows")
+# ============================================================
+# HEADER
+# ============================================================
+
+st.title("☕ Coffee Shop Sales")
+
 st.caption(
-    f"Showing {len(filtered):,} of {len(df):,} valid records · "
-    f"{start_date:%b %d, %Y} – {end_date:%b %d, %Y}"
+    "A clear view of revenue, customer activity, "
+    "and product performance."
 )
 
-total_revenue = filtered["Revenue"].sum()
-total_transactions = filtered["transaction_id"].nunique()
-total_quantity = filtered["transaction_qty"].sum()
-average_order_value = total_revenue / total_transactions if total_transactions else 0
+st.caption(
+    f"Showing {len(filtered):,} of {len(df):,} valid records "
+    f"· {start_date:%b %d, %Y} – {end_date:%b %d, %Y}"
+)
 
-st.subheader("Key performance indicators")
-kpi_columns = st.columns(4)
-kpi_columns[0].metric("Total revenue", f"{total_revenue:,.2f}")
-kpi_columns[1].metric("Transactions", f"{total_transactions:,}")
-kpi_columns[2].metric("Items sold", f"{total_quantity:,.0f}")
-kpi_columns[3].metric("Average order value", f"{average_order_value:,.2f}")
+
+# ============================================================
+# ROW 1: REVENUE BY CATEGORY AND STORE
+# ============================================================
+
+cat_col, store_col = st.columns(2)
+
+with cat_col:
+    st.subheader("Revenue by Product Category")
+
+    if filtered.empty:
+        st.info("No category revenue for these filters.")
+
+    else:
+        cat = (
+            filtered.groupby("product_category", as_index=False)
+            .agg(Revenue=("Revenue", "sum"))
+            .sort_values(by="Revenue", ascending=False)
+        )
+
+        fig = px.bar(
+            cat,
+            x="Revenue",
+            y="product_category",
+            orientation="h",
+            color_discrete_sequence=[COFFEE_LIGHT],
+        )
+
+        fig.update_traces(
+            text=cat["Revenue"].map(
+                lambda value: f"${value:,.0f}"
+            ),
+            texttemplate="%{text}",
+            textposition="outside",
+            cliponaxis=False,
+            hovertemplate=(
+                "%{y}<br>"
+                "Revenue: $%{x:,.2f}"
+                "<extra></extra>"
+            ),
+        )
+
+        fig.update_xaxes(
+            title="Revenue",
+            tickprefix="$",
+            tickformat=",.0f",
+        )
+
+        fig.update_yaxes(
+            title=None,
+            automargin=True,
+        )
+
+        render_chart(
+            chart_layout(
+                fig,
+                max(300, min(440, 50 * len(cat) + 90)),
+            ),
+            {"displayModeBar": False},
+        )
+
+
+with store_col:
+    st.subheader("Revenue by Store Location")
+
+    if filtered.empty:
+        st.info("No store revenue for these filters.")
+
+    else:
+        store = (
+            filtered.groupby("store_location", as_index=False)
+            .agg(Revenue=("Revenue", "sum"))
+            .sort_values(by="Revenue", ascending=False)
+        )
+
+        fig = px.bar(
+            store,
+            x="Revenue",
+            y="store_location",
+            orientation="h",
+            color_discrete_sequence=[COFFEE],
+        )
+
+        fig.update_traces(
+            text=store["Revenue"].map(
+                lambda value: f"${value:,.0f}"
+            ),
+            texttemplate="%{text}",
+            textposition="outside",
+            cliponaxis=False,
+            hovertemplate=(
+                "%{y}<br>"
+                "Revenue: $%{x:,.2f}"
+                "<extra></extra>"
+            ),
+        )
+
+        fig.update_xaxes(
+            title="Revenue",
+            tickprefix="$",
+            tickformat=",.0f",
+        )
+
+        fig.update_yaxes(
+            title=None,
+            automargin=True,
+        )
+
+        render_chart(
+            chart_layout(
+                fig,
+                max(300, min(440, 50 * len(store) + 90)),
+            ),
+            {"displayModeBar": False},
+        )
+
+
+# ============================================================
+# ROW 2: KEY PERFORMANCE INDICATORS
+# ============================================================
+
+st.subheader("Key Performance Indicators")
+
+revenue = float(filtered["Revenue"].sum())
+
+transactions = int(
+    filtered["transaction_id"].nunique()
+)
+
+items = float(
+    filtered["transaction_qty"].sum()
+)
+
+aov = revenue / transactions if transactions else 0.0
+
+kpis = st.columns(4)
+
+kpis[0].metric(
+    "Total Revenue",
+    format_money(revenue),
+)
+
+kpis[1].metric(
+    "Transactions",
+    f"{transactions:,}",
+)
+
+kpis[2].metric(
+    "Items Sold",
+    f"{items:,.0f}",
+)
+
+kpis[3].metric(
+    "Average Order Value",
+    format_money(aov),
+)
+
+
+# ============================================================
+# ROW 3: MONTHLY REVENUE AND TOP PRODUCTS
+# ============================================================
+
+monthly_col, product_col = st.columns([3, 2])
+
+
+with monthly_col:
+    st.subheader("Monthly Revenue")
+
+    if filtered.empty:
+        st.info("No monthly revenue for these filters.")
+
+    else:
+        monthly_source = filtered.assign(
+            month=(
+                filtered["transaction_date"]
+                .dt.to_period("M")
+                .dt.to_timestamp()
+            )
+        )
+
+        monthly = (
+            monthly_source.groupby(
+                "month",
+                as_index=False,
+            )
+            .agg(
+                Revenue=("Revenue", "sum"),
+                Records=("Revenue", "size"),
+            )
+            .sort_values(by="month")
+        )
+
+        # Break the line at sparse months and unobserved calendar months. Sparse
+        # records remain visible as their own points with their actual totals.
+        month_number = monthly["month"].dt.year * 12 + monthly["month"].dt.month
+        dense_month = monthly["Records"] >= SPARSE_MONTH_RECORD_THRESHOLD
+        monthly["_line_run"] = (
+            (~dense_month) | month_number.diff().ne(1)
+        ).cumsum()
+        dense_monthly = monthly.loc[dense_month]
+        sparse_monthly = monthly.loc[~dense_month]
+
+        split_scales = not dense_monthly.empty and not sparse_monthly.empty
+        fig = make_subplots(
+            rows=1,
+            cols=2 if split_scales else 1,
+            column_widths=[0.7, 0.3] if split_scales else [1.0],
+            horizontal_spacing=0.14 if split_scales else 0.08,
+            subplot_titles=(
+                ["Higher-volume months", "Sparse observed months"]
+                if split_scales
+                else ["Monthly revenue"]
+            ),
+        )
+
+        for run_number, run in dense_monthly.groupby("_line_run", sort=True):
+            fig.add_trace(
+                go.Scatter(
+                    x=run["month"].tolist(),
+                    y=run["Revenue"].to_numpy(dtype="float64").tolist(),
+                    customdata=run[["Records"]].to_numpy(),
+                    text=[
+                        format_chart_money(float(value))
+                        for value in run["Revenue"].tolist()
+                    ],
+                    mode="lines+markers+text",
+                    textposition="top center",
+                    textfont=dict(color=INK, size=10),
+                    name="Monthly revenue trend",
+                    legendgroup="dense-months",
+                    showlegend=bool(
+                        run_number == dense_monthly["_line_run"].min()
+                    ),
+                    line=dict(width=3, color=COFFEE),
+                    marker=dict(size=7, color=COFFEE_LIGHT),
+                    hovertemplate=(
+                        "%{x|%b %Y}<br>"
+                        "Revenue: $%{y:,.2f}<br>"
+                        "Records: %{customdata[0]:,}"
+                        "<extra></extra>"
+                    ),
+                ),
+                row=1,
+                col=1,
+            )
+
+        if not sparse_monthly.empty:
+            sparse_column = 2 if split_scales else 1
+            fig.add_trace(
+                go.Bar(
+                    x=sparse_monthly["month"].tolist(),
+                    y=sparse_monthly["Revenue"].to_numpy(dtype="float64").tolist(),
+                    customdata=sparse_monthly[["Records"]].to_numpy(),
+                    text=[
+                        format_chart_money(float(value))
+                        for value in sparse_monthly["Revenue"].tolist()
+                    ],
+                    textposition="outside",
+                    textfont=dict(color=INK, size=10),
+                    name=f"Sparse month (< {SPARSE_MONTH_RECORD_THRESHOLD} records)",
+                    marker=dict(color=COFFEE_LIGHT, line=dict(width=1, color=COFFEE)),
+                    hovertemplate=(
+                        "%{x|%b %Y}<br>"
+                        "Revenue: $%{y:,.2f}<br>"
+                        "Records: %{customdata[0]:,}"
+                        "<extra></extra>"
+                    ),
+                ),
+                row=1,
+                col=sparse_column,
+            )
+
+        fig.update_layout(
+            height=350,
+            margin=dict(l=58, r=22, t=54, b=48),
+            paper_bgcolor=CARD,
+            plot_bgcolor=CARD,
+            font=dict(family="Inter, Arial, sans-serif", color=INK, size=12),
+            hoverlabel=dict(bgcolor="#fffaf3", font_color=INK),
+            showlegend=False,
+            bargap=0.32,
+        )
+        fig.update_annotations(font=dict(color=INK, size=11))
+        fig.update_xaxes(
+            title=None,
+            tickformat="%b",
+            dtick="M1",
+            tickangle=-25,
+            showgrid=False,
+            linecolor="#E7DCCE",
+            zeroline=False,
+            tickfont=dict(color="#55483D", size=10),
+        )
+        fig.update_yaxes(
+            title="Revenue",
+            tickprefix="$",
+            tickformat=",.0f",
+            gridcolor="#EFE8DF",
+            linecolor="#E7DCCE",
+            zeroline=False,
+            tickfont=dict(color="#55483D", size=10),
+            title_font=dict(color=INK, size=11),
+        )
+        if split_scales:
+            dense_max = float(dense_monthly["Revenue"].max())
+            sparse_max = float(sparse_monthly["Revenue"].max())
+            fig.update_yaxes(range=[0, max(dense_max * 1.1, 1.0)], row=1, col=1)
+            fig.update_yaxes(range=[0, max(sparse_max * 1.35, 1.0)], row=1, col=2)
+        else:
+            observed_max = float(monthly["Revenue"].max())
+            fig.update_yaxes(range=[0, max(observed_max * 1.1, 1.0)], row=1, col=1)
+
+        render_chart(
+            fig,
+            {"displayModeBar": False},
+        )
+
+        if split_scales:
+            sparse_counts = ", ".join(
+                f"{row.month:%b}: {int(cast(int, row.Records)):,}"
+                for row in sparse_monthly.itertuples(index=False)
+            )
+            st.caption(
+                "The panels use separate dollar scales so sparse observations remain "
+                f"readable. Sparse-month record counts: {sparse_counts}."
+            )
+
+        with st.expander("Monthly revenue diagnostics"):
+            diagnostic = monthly.copy()
+            diagnostic["month"] = diagnostic["month"].dt.strftime(
+                "%B %Y"
+            )
+            diagnostic["Revenue"] = diagnostic["Revenue"].round(2)
+
+            render_table(diagnostic)
+
+
+with product_col:
+    st.subheader("Top 10 Products by Quantity Sold")
+
+    if filtered.empty:
+        st.info("No product quantities for these filters.")
+
+    else:
+        top = (
+            filtered.groupby("product_detail", as_index=False)
+            .agg(transaction_qty=("transaction_qty", "sum"))
+            .sort_values(by="transaction_qty", ascending=False)
+            .head(10)
+            .sort_values(by="transaction_qty", ascending=True)
+        )
+
+        fig = px.bar(
+            top,
+            x="transaction_qty",
+            y="product_detail",
+            orientation="h",
+            color_discrete_sequence=[COFFEE_LIGHT],
+        )
+
+        fig.update_traces(
+            text=top["transaction_qty"].map(
+                lambda value: f"{value:,.0f}"
+            ),
+            texttemplate="%{text}",
+            textposition="outside",
+            cliponaxis=False,
+            hovertemplate=(
+                "%{y}<br>"
+                "Items sold: %{x:,.0f}"
+                "<extra></extra>"
+            ),
+        )
+
+        fig.update_xaxes(
+            title="Items sold",
+            tickformat=",.0f",
+        )
+
+        fig.update_yaxes(
+            title=None,
+            automargin=True,
+        )
+
+        render_chart(
+            chart_layout(fig, 350),
+            {"displayModeBar": False},
+        )
+
+
+# ============================================================
+# DOWNLOAD FILTERED DATA
+# ============================================================
 
 st.divider()
 
-if filtered.empty:
-    st.info("No sales match these filters. Adjust a location, category, or date range to see results.")
-else:
-    st.subheader("Monthly revenue")
-    monthly = (
-        filtered.set_index("transaction_date")
-        .resample("MS")["Revenue"]
-        .sum()
-        .rename("Revenue")
-    )
-    monthly_figure, monthly_axes = create_figure((11, 3.8))
-    monthly_axes.plot(  # pyright: ignore[reportUnknownMemberType]
-        cast(pd.DatetimeIndex, monthly.index).to_pydatetime(),
-        monthly.to_numpy(dtype=float),
-        color="#765238",
-        linewidth=2.8,
-        marker="o",
-        markersize=4.5,
-        markerfacecolor="#B8895B",
-        markeredgecolor="#FFFDFA",
-        markeredgewidth=1,
-    )
-    monthly_axes.xaxis.set_major_locator(
-        mdates.MonthLocator(interval=max(1, (len(monthly) + 7) // 8))
-    )
-    monthly_axes.xaxis.set_major_formatter(mdates.DateFormatter("%b %Y"))
-    monthly_axes.yaxis.set_major_formatter(FuncFormatter(format_number))
-    style_axes(
-        monthly_figure,
-        monthly_axes,
-        "Revenue by month",
-        "Month",
-        "Revenue",
-        "y",
-    )
-    monthly_figure.tight_layout()
-    render_figure(monthly_figure)
-
-    category_col, store_col = st.columns(2)
-    with category_col:
-        st.subheader("Revenue by product category")
-        category_data: pd.DataFrame = (
-            filtered.groupby("product_category", as_index=False)
-            .agg({"Revenue": "sum"})
-            .rename(columns={"product_category": "Category"})
-        )
-        category_data = category_data.sort_values("Revenue", ascending=False)
-        category_figure, category_axes = create_figure(
-            (7, max(3.2, 0.38 * len(category_data)))
-        )
-        category_bars = category_axes.barh(  # pyright: ignore[reportUnknownMemberType]
-            category_data["Category"],
-            category_data["Revenue"],
-            color="#9B704C",
-            height=0.66,
-        )
-        category_axes.invert_yaxis()
-        category_axes.xaxis.set_major_formatter(
-            FuncFormatter(format_number)
-        )
-        style_axes(
-            category_figure,
-            category_axes,
-            "Revenue by product category",
-            "Revenue",
-            "",
-            "x",
-        )
-        category_axes.set_ylabel("")  # pyright: ignore[reportUnknownMemberType]
-        add_bar_labels(category_axes, category_bars, float(category_data["Revenue"].max()))
-        category_figure.tight_layout()
-        render_figure(category_figure)
-
-    with store_col:
-        st.subheader("Revenue by store location")
-        store_data: pd.DataFrame = (
-            filtered.groupby("store_location", as_index=False)
-            .agg({"Revenue": "sum"})
-            .rename(columns={"store_location": "Store location"})
-        )
-        store_data = store_data.sort_values("Revenue", ascending=False)
-        store_figure, store_axes = create_figure(
-            (7, max(3.2, 0.65 * len(store_data)))
-        )
-        store_bars = store_axes.barh(  # pyright: ignore[reportUnknownMemberType]
-            store_data["Store location"],
-            store_data["Revenue"],
-            color="#B8895B",
-            height=0.58,
-        )
-        store_axes.invert_yaxis()
-        store_axes.xaxis.set_major_formatter(
-            FuncFormatter(format_number)
-        )
-        style_axes(
-            store_figure,
-            store_axes,
-            "Revenue by store location",
-            "Revenue",
-            "",
-            "x",
-        )
-        store_axes.set_ylabel("")  # pyright: ignore[reportUnknownMemberType]
-        add_bar_labels(store_axes, store_bars, float(store_data["Revenue"].max()))
-        store_figure.tight_layout()
-        render_figure(store_figure)
-
-    st.subheader("Top 10 products by quantity sold")
-    top_products: pd.DataFrame = (
-        filtered.groupby("product_detail", as_index=False)
-        .agg({"transaction_qty": "sum"})
-        .nlargest(n=10, columns=["transaction_qty"])
-        .sort_values("transaction_qty", ascending=False)
-        .rename(columns={"product_detail": "Product", "transaction_qty": "Quantity sold"})
-    )
-    product_figure, product_axes = create_figure((11, 5))
-    product_bars = product_axes.barh(  # pyright: ignore[reportUnknownMemberType]
-        top_products["Product"],
-        top_products["Quantity sold"],
-        color="#765238",
-        height=0.68,
-    )
-    product_axes.invert_yaxis()
-    product_axes.xaxis.set_major_formatter(
-        FuncFormatter(format_number)
-    )
-    style_axes(
-        product_figure,
-        product_axes,
-        "Top products by quantity sold",
-        "Items sold",
-        "",
-        "x",
-    )
-    product_axes.set_ylabel("")  # pyright: ignore[reportUnknownMemberType]
-    add_bar_labels(
-        product_axes, product_bars, float(top_products["Quantity sold"].max())
-    )
-    product_figure.tight_layout()
-    render_figure(product_figure)
-
-st.subheader("Filtered sales records")
 st.download_button(
     "Download filtered CSV",
     data=filtered.to_csv(index=False).encode("utf-8"),
@@ -411,11 +871,13 @@ st.download_button(
     mime="text/csv",
     disabled=filtered.empty,
 )
-with st.expander("View filtered sales data", expanded=False):
-    streamlit_version = tuple(int(part) for part in st.__version__.split(".")[:2])
-    if streamlit_version >= (1, 50):
-        st.dataframe(filtered, width="stretch", hide_index=True)  # pyright: ignore[reportUnknownMemberType]
-    else:
-        st.dataframe(filtered, use_container_width=True, hide_index=True)  # pyright: ignore[reportUnknownMemberType]
+
+with st.expander("View filtered sales data"):
+    render_table(filtered)
+
+
+# ============================================================
+# FOOTER
+# ============================================================
 
 st.caption("Coffee Shop Sales · Interactive analytics")
